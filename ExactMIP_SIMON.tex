@@ -1,0 +1,222 @@
+%%%%%%%%%%%%%%%%%%%%%%% file typeinst.tex %%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% This is the LaTeX source for the instructions to authors using
+% the LaTeX document class 'llncs.cls' for contributions to
+% the Lecture Notes in Computer Sciences series.
+% http://www.springer.com/lncs       Springer Heidelberg 2006/05/04
+%
+% It may be used as a template for your own input - copy it
+% to a new file with a new name and use it as the basis
+% for your article.
+%
+% NB: the document class 'llncs' has its own and detailed documentation, see
+% ftp://ftp.springer.de/data/pubftp/pub/tex/latex/llncs/latex2e/llncsdoc.pdf
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\makeatletter
+\let\@twosidetrue\@twosidefalse
+\let\@mparswitchtrue\@mparswitchfalse
+\makeatother
+
+\documentclass[runningheads]{llncs}
+%\usepackage[left=2.5cm,right=2.5cm,top=1.8cm,bottom=1.8cm]{geometry}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\setcounter{tocdepth}{3}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{rotating}
+\usepackage{multirow}
+%\usepackage[lined,boxed,commentsnumbered, ruled]{algorithm2e}
+\usepackage[lined,boxed,commentsnumbered,ruled,linesnumbered]{algorithm2e}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{lscape}
+\captionsetup{compatibility=false}
+
+%\newtheorem{definition}{Definition}
+%[chapter]
+
+
+
+\newcommand{\keywords}[1]{\par\addvspace\baselineskip
+\noindent\keywordname\enspace\ignorespaces#1}
+%\urldef{\mailsa}\path|swsun@is.ac.cn|
+%\urldef{\mailsb}\path|hu@is.ac.cn|
+%\urldef{\mailsc}\path|wp@is.ac.cn|
+\urldef{\mailsd}\path|hu@is.ac.cn|
+\urldef{\mailsa}\path|sunsiwei@iie.ac.cn|
+%\urldef{\mailsf}\path|wp@is.ac.cn|
+%\urldef{\mailse}\path|xzeng@hubu.edu.cn|
+
+\spnewtheorem{Theorem}{Fact}{\bfseries}{\itshape}
+\newcommand{\CONV}{{\rm conv}}
+\newcommand{\Dengdeng}{{\it et al.}}
+
+\begin{document}
+
+\mainmatter  % start of an individual contribution
+
+% first the title is needed
+\title{Constructing Mixed-integer Programming Models whose Feasible Regions Contain No Invalid Differential Characteristics for SIMON}
+\titlerunning{~}
+\author{Siwei Sun$^{1,2}$, Lei Hu$^{1,2}$, Meiqin Wang$^{3}$, Peng Wang$^{1,2}$, Kexin Qiao$^{1,2}$, Xiaoshuang Ma$^{1,2}$, Danping Shi$^{1,2}$, Ling Song$^{1,2}$, Kai Fu$^{3}$}
+
+%\authorrunning{S. Sun, L. Hu, M. Wang, P. Wang, K. Qiao, X. Ma, L. Song}
+% (feature abused for this document to repeat the title also on left hand pages)
+
+% the affiliations are given next
+\institute{$^1$State Key Laboratory of Information Security, Institute of Information Engineering,\\ Chinese Academy of Sciences, Beijing 100093, China\\
+$^2$Data Assurance and Communication Security Research Center, \\Chinese Academy of Sciences,
+Beijing 100093, China\\
+$^3$Key Laboratory of Cryptologic Technology and Information Security,\\
+Ministry of Education, Shandong University, Jinan 250100, China\\
+\path|{sunsiwei, hulei}@iie.ac.cn|, 
+\path|mqwang@sdu.edu.cn|,\\
+\path|{wpeng, qiaokexin, maxiaoshuang, shidanping, songling}@iie.ac.cn|
+}
+
+% NB: a more complex sample for affiliations and the mapping to the
+% corresponding authors can be found in the file "llncs.dem"
+% (search for the string "\mainmatter" where a contribution starts).
+% "llncs.dem" accompanies the document class "llncs.cls".
+%
+
+\toctitle{Lecture Notes in Computer Science}
+\tocauthor{Authors' Instructions}
+\maketitle
+
+
+
+\begin{abstract}
+In IACR ePrint 2014/747, a method for constructing mixed-integer linear programming (MILP) models whose feasible regions are exactly the sets of all possible differential (or linear) characteristics for a wide range of block ciphers is presented. These models can be used to search for or enumerate differential and linear characteristics of a block cipher automatically. However, for the case of SIMON (a lightweight block cipher designed by the U.S. National Security Agency), the method proposed in IACR ePrint 2014/747 is not {\it exact} anymore. That is, the feasible region of the MILP model constructed for SIMON contains invalid differential characteristics due to the dependent input bits of the AND operations, and these invalid characteristics must be filtered out by other methods. This is a very inconvenient process and reduces the level of automation of the framework of MILP-based automatic differential analysis. In this paper, by using quadratic constraints or constraints from the H-representation of a specific convex hull, we give a method for constructing mixed-integer (non)linear programming models whose feasible regions are exactly the sets of all possible differential characteristics for SIMON. The technique presented in this paper may be also useful for other ciphers. How to construct an MILP model whose feasible region is exactly the set of all linear characteristics of SIMON is still an open problem.
+
+
+
+\keywords{Automatic cryptanalysis, Related-key differential attack, Mixed-integer Linear Programming, Convex hull}
+\end{abstract}
+
+
+\section{Differential Behavior of the AND Operations of SIMON with Dependent Input Bits }
+We will focus on the case of SIMON32 \cite{simon_spec} with block size 32 bits, for other cases the method is similar. The nonlinear layer of SIMON32 can be described by a non-linear function $F:\mathbb{F}_2^{16} \rightarrow \mathbb{F}_2^{16} $, such that
+$$F(x) = (x<<<1) \cdot (x<<<8), ~x = (x_0, \cdots, x_{15}) \in \mathbb{F}_2^{16}. $$
+where $\cdot$ is the bitwise AND operation.
+
+
+Let $\Delta = (\Delta_0, \cdots, \Delta_{15}) \in \mathbb{F}_2^{16}$, and $\delta = (\delta_0, \cdots, \delta_{15}) \in \mathbb{F}_2^{16}$, then the differential $\Delta \rightarrow \delta$ is a valid differential pattern for $F$ if and only if 
+there exists $x \in \mathbb{F}_2^{16}$ such that
+$$F(x) + F(x + \Delta)  =  \delta$$
+That is
+$$ ((x + \Delta)<<<1) \cdot ((x + \Delta)<<<8) = \delta$$
+Write it bitwisely, we claim that the differential $\Delta \rightarrow \delta$ is valid if and only if the following system of equations of $x_i$ has a solution
+
+\begin{equation}
+\left\{
+\begin{array}{l}
+\delta_0    = \Delta_1    \cdot x_8    + \Delta_8    \cdot x_1\\
+\delta_1    = \Delta_2    \cdot x_9    + \Delta_9    \cdot x_2\\
+\delta_2    = \Delta_3    \cdot x_{10} + \Delta_{10} \cdot x_3\\
+\delta_3    = \Delta_4    \cdot x_{11} + \Delta_{11} \cdot x_4\\
+\delta_4    = \Delta_5    \cdot x_{12} + \Delta_{12} \cdot x_5\\
+\delta_5    = \Delta_6    \cdot x_{13} + \Delta_{13} \cdot x_6\\
+\delta_6    = \Delta_7    \cdot x_{14} + \Delta_{14} \cdot x_7\\
+\delta_7    = \Delta_8    \cdot x_{15} + \Delta_{15} \cdot x_8\\
+\delta_8    = \Delta_9    \cdot x_0    + \Delta_0    \cdot x_9\\
+\delta_9    = \Delta_{10} \cdot x_1    + \Delta_1    \cdot x_{10}\\
+\delta_{10} = \Delta_{11} \cdot x_2    + \Delta_2    \cdot x_{11}\\
+\delta_{11} = \Delta_{12} \cdot x_3    + \Delta_3    \cdot x_{12}\\
+\delta_{12} = \Delta_{13} \cdot x_4    + \Delta_4    \cdot x_{13}\\
+\delta_{13} = \Delta_{14} \cdot x_5    + \Delta_5    \cdot x_{14}\\
+\delta_{14} = \Delta_{15} \cdot x_6    + \Delta_6    \cdot x_{15}\\
+\delta_{15} = \Delta_0    \cdot x_7    + \Delta_7    \cdot x_0
+\end{array}
+\right.
+\end{equation}
+
+
+\section{Constructing Exact Mixed-integer Programming Models for SIMON}
+In the work of IACR ePrint 2014/747 \cite{cryptoeprint:2014:747}, the MILP models generated for SIMON only have variables for the differences ($\delta_i$ and $\Delta_i$) and the active AND operations. To generate exact models for SIMON, we need to introduce a new set of variables ($x_i, 0 \leq i \leq 15$ ) for every round of SIMON, and include the constraints listed in (1) into the model. However, the equations in (1) are quadratic constraints and we do not know how to solve the resulting quadratic integer programming model. In the following, we show how to convert it into a set of linear constraints by the convex hull computation technique.
+
+
+
+Taking the first equation $\delta_0    = \Delta_1    \cdot x_8    + \Delta_8    \cdot x_1$ in (2) for example, let $Sol(\delta_0    = \Delta_1    \cdot x_8    + \Delta_8    \cdot x_1)$ be the set of all 0-1 solutions for this equation. Then
+$$Sol(\delta_0    = \Delta_1    \cdot x_8    + \Delta_8    \cdot x_1) $$
+can be treated as a subset of $\{0,1\}^5 \in \mathbb{R}^5$. The vectors $(\delta_0, \Delta_1, x_8, \Delta_8, x_1)$ in $Sol(\delta_0    = \Delta_1    \cdot x_8    + \Delta_8    \cdot x_1)$ are given below
+
+\begin{verbatim}
+[ 0, 0, 0, 0, 0 ]
+[ 0, 0, 0, 0, 1 ]
+[ 0, 0, 0, 1, 0 ]
+[ 0, 0, 1, 0, 0 ]
+[ 0, 0, 1, 0, 1 ]
+[ 0, 0, 1, 1, 0 ]
+[ 0, 1, 0, 0, 0 ]
+[ 0, 1, 0, 0, 1 ]
+[ 0, 1, 0, 1, 0 ]
+[ 0, 1, 1, 1, 1 ]
+[ 1, 0, 0, 1, 1 ]
+[ 1, 0, 1, 1, 1 ]
+[ 1, 1, 0, 1, 1 ]
+[ 1, 1, 1, 0, 0 ]
+[ 1, 1, 1, 0, 1 ]
+[ 1, 1, 1, 1, 0 ]
+\end{verbatim}
+
+
+
+
+
+Now, we can compute the critical set $\mathcal{O}$ of the H-representation of the convex hull of 
+$Sol(\delta_0    = \Delta_1    \cdot x_8    + \Delta_8    \cdot x_1) $. The H-representation of the convex hull is given below
+\begin{verbatim}
+An inequality (0, -1, 0, 0, 0) V + 1 >= 0
+An inequality (0, 0, -1, 0, 0) V + 1 >= 0
+An inequality (0, 0, 0, -1, 0) V + 1 >= 0
+An inequality (-1, 1, 0, 0, 1) V + 0 >= 0
+An inequality (-1, 0, 1, 0, 1) V + 0 >= 0
+An inequality (-1, 0, 0, 0, 0) V + 1 >= 0
+An inequality (0, 0, 0, 0, 1) V + 0 >= 0
+An inequality (1, -1, -1, 0, 1) V + 1 >= 0
+An inequality (0, 1, 0, 0, 0) V + 0 >= 0
+An inequality (0, 0, 0, 0, -1) V + 1 >= 0
+An inequality (-1, 1, 0, 1, 0) V + 0 >= 0
+An inequality (1, 0, 0, 0, 0) V + 0 >= 0
+An inequality (-1, 0, 1, 1, 0) V + 0 >= 0
+An inequality (0, 0, 0, 1, 0) V + 0 >= 0
+An inequality (1, 0, 1, -1, -1) V + 1 >= 0
+An inequality (0, 0, 1, 0, 0) V + 0 >= 0
+An inequality (1, -1, -1, 1, 0) V + 1 >= 0
+An inequality (1, 1, 0, -1, -1) V + 1 >= 0
+An inequality (-1, -1, -1, -1, -1) V + 4 >= 0
+\end{verbatim}
+Where $V = (\delta_0, \Delta_1, x_8, \Delta_8, x_1)^T$, and the method for computing the critical set is presented in IACR ePrint 2014/747 \cite{cryptoeprint:2014:747}. The critical set $\mathcal{O}$ is 
+\begin{verbatim}
+(-1, 0, 1, 0, 1, 0)
+(-1, 1, 0, 1, 0, 0)
+(1, -1, -1, 1, 0, 1)
+(1, 1, 0, -1, -1, 1)
+(1, 0, 1, -1, -1, 1)
+(-1, -1, -1, -1, -1, 4)
+(-1, 1, 0, 0, 1, 0)
+(-1, 0, 1, 1, 0, 0)
+(1, -1, -1, 0, 1, 1)
+\end{verbatim}
+
+$\mathcal{O}$ is a set of 9 linear inequalities involving the 5 variables: $\delta_0, \Delta_1, x_8, \Delta_8, x_1$. Then we can add these set of linear constraints to the overall MILP model. Note that such linear constraints must be added into the model for every equation in (1). Now, we come to an MILP model for SIMON whose feasible region is exactly the set of all differential characteristics for SIMON.
+
+
+
+\section{How to Use This Technique in Practice}
+Compared with the models generated in IACR ePrint 2014/747, the new models contains more variables and constraints which will make it more difficult to solve. So, we suggest that we should first try to find a good differential characteristic with input difference $\alpha$ and output difference $\beta$ by the method presented in IACR ePrint 2014/747. According to our experimental experience, we will get a valid characteristic with a very high chance. Then when we want to enumerate the characteristics in the differential $\alpha \rightarrow \beta$, we fix the variables in the MILP model according to the the input and output differences and limit the number of active AND operations, and add the new constraints described in this paper to the MILP model. Now, we can enumerate all differential characteristics of this differential with the predefined properties by finding all solutions of the MILP model. Since the number of active AND is limited, lots of variables in the model will just disappear (when it is assigned a value of 0), and the model will be not very difficult to solve. 
+
+\section{Open Problem}
+How to construct an MILP model whose feasible region is exactly the set of all linear characteristics of SIMON.
+
+\bibliographystyle{unsrt}
+\bibliography{newbib}
+
+
+\end{document}
+
+
